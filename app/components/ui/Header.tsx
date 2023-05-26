@@ -2,7 +2,7 @@ import { Link, NavLink, useRouteLoaderData } from "@remix-run/react";
 import CartButton from "../custom-ui/CartButton";
 import Button from "../custom-ui/Button";
 import { type loader as rootLoader } from "~/root";
-import { SerializeFrom } from "@remix-run/node";
+import type { SerializeFrom } from "@remix-run/node";
 
 type Props = {};
 
@@ -25,7 +25,7 @@ const Header = (props: Props) => {
   return (
     <nav className="py-4 w-full container flex flex-row flex-nowrap justify-between items-center">
       <NavLink to="/" className="decoration-0 no-underline">
-        Pizzeria Shop
+        Doolittle
       </NavLink>
 
       <div className="flex gap-3 items-center">

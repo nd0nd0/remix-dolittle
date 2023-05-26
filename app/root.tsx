@@ -1,7 +1,6 @@
 import type {
   DataFunctionArgs,
   LinksFunction,
-  LoaderFunction,
   TypedResponse,
   V2_MetaFunction,
 } from "@remix-run/node";
@@ -17,15 +16,7 @@ import {
   useRouteError,
 } from "@remix-run/react";
 import { v4 as uuidv4 } from "uuid";
-
-//-----styles-----//
-import skeletonCss from "~/styles/skeleton.css";
-import stylesheet from "~/styles/tailwind.css";
-import {
-  deleteUUID,
-  generateUUID,
-  getUUID,
-} from "./server/actions/nonUserActions";
+import type { IOrder } from "./server/models/OrdersModel";
 import { GET_NON_USER_ORDERS } from "./server/services/nonuser.server";
 import { GET_USER_BY_ID } from "./server/services/user.server";
 import {
@@ -38,8 +29,10 @@ import {
   destroySession,
   getSession,
 } from "./server/utils/session.server";
-import { TypedJsonResponse, typedjson } from "remix-typedjson";
-import { IOrder } from "./server/models/OrdersModel";
+
+//-----styles-----//
+import skeletonCss from "~/styles/skeleton.css";
+import stylesheet from "~/styles/tailwind.css";
 
 export async function loader({ request }: DataFunctionArgs): Promise<
   TypedResponse<{
@@ -86,7 +79,7 @@ export async function loader({ request }: DataFunctionArgs): Promise<
         );
       }
     } else {
-      const user = GET_USER_BY_ID(userID);
+      // const user = GET_USER_BY_ID(userID);
       return json(
         {
           user: null,
@@ -104,8 +97,6 @@ export async function loader({ request }: DataFunctionArgs): Promise<
     const nonUserUUID = await getNonUserUUID(request);
     if (nonUserUUID) {
       USER_ORDERS = await GET_NON_USER_ORDERS(nonUserUUID);
-      console.log("🚀 ~ file: root.tsx:65 ~ USER_ORDERS:", USER_ORDERS);
-
       return json({
         user: null,
         ENV: getEnv(),
