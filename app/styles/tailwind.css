@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@layer base {
+  html,
+  body {
+    @apply container m-auto  px-8   font-main overflow-x-hidden;
+  }
+  a {
+    @apply no-underline hover:text-inherit;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p,
+  a,
+  i {
+    @apply m-1 p-0 font-main text-dark;
+  }
+
+  .groupInput:focus {
+    @apply !border-transparent;
+  }
+
+  ::-webkit-scrollbar {
+    @apply w-1;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply rounded-md bg-secondary hover:rounded-md hover:bg-hover;
+  }
+}
