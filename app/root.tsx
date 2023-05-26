@@ -134,7 +134,7 @@ export const links: LinksFunction = () => [
 
 function Document({
   children,
-  title = "Remix Ecommerce App",
+  title = "Doolittle Kids Clothing",
 }: {
   children: React.ReactNode;
   title?: string;
