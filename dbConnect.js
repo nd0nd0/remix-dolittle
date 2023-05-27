@@ -24,7 +24,7 @@ async function dbConnect() {
     // };
 
     cached.promise = mongoose
-      .connect("mongodb://127.0.0.1:27017/pizzeria")
+      .connect(process.env.DATABASE_URL)
       .then((mongoose) => {
         return mongoose;
       });

@@ -19,7 +19,7 @@
   p,
   a,
   i {
-    @apply m-1 p-0 font-main text-dark;
+    @apply m-1 p-0 font-main text-primary_text_color;
   }
 
   .groupInput:focus {

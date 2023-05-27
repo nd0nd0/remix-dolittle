@@ -1,7 +1,7 @@
 import type { Config } from 'tailwindcss'
 
 export default {
-  content: ['./app/**/*.{js,jsx,ts,tsx}'],
+  content: ['./app/**/*.{js,jsx,ts,tsx}',"./node_modules/tw-elements/dist/js/**/*.{js,ts,tsx}"],
   theme: {
     fontFamily: {
       main: [
@@ -27,6 +27,6 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [require("daisyui")],
 } satisfies Config
 

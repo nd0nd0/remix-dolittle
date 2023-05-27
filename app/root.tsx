@@ -33,10 +33,11 @@ import {
 //-----styles-----//
 import skeletonCss from "~/styles/skeleton.css";
 import stylesheet from "~/styles/tailwind.css";
+import type { IUser } from "./server/models/UserModel";
 
 export async function loader({ request }: DataFunctionArgs): Promise<
   TypedResponse<{
-    user: null;
+    user: IUser | null;
     ENV: {
       MODE: "development" | "production" | "test";
     };
@@ -134,7 +135,7 @@ export const links: LinksFunction = () => [
 
 function Document({
   children,
-  title = "Doolittle Kids Clothing",
+  title = "Doolittle",
 }: {
   children: React.ReactNode;
   title?: string;
