@@ -14,6 +14,7 @@ const ButtonVariants = cva("rounded-none no-underline", {
         "text-slate-50 bg-cta p-2 rounded-sm  xsm:p-5 md:p-4 xsm:mt-0 md:mt-8 hover:bg-hover  active:bg-hover",
       filter:
         "text-inherit bg-transparent p-0 hover:bg-highlighter focus:bg-transparent",
+      delete: "bg-red-600  rounded-md text-white   py-2 px-2 hover:bg-blue-700",
     },
   },
   defaultVariants: {
@@ -25,15 +26,18 @@ interface ButtonProps
   extends HTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof ButtonVariants> {
   children: ReactNode;
+  name?: string;
+  value?: string;
 }
 
 const Button: FC<ButtonProps> = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ children, className, type, ...props }, ref) => {
+  ({ children, className, type, name, ...props }, ref) => {
     return (
       <button
         ref={ref}
         {...props}
         className={classNameMerge(ButtonVariants({ type, className }))}
+        name={name}
       >
         {children}
       </button>

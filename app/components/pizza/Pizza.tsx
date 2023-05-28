@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
-import type { IPizza } from "~/server/models/PizzaModel";
-import Button from "../custom-ui/Button";
-import { useRouteLoaderData } from "@remix-run/react";
+import type { SerializeFrom } from "@remix-run/node";
+import { Link, useFetcher, useRouteLoaderData } from "@remix-run/react";
+import { useState } from "react";
 import { type loader as rootLoader } from "~/root";
-import { type SerializeFrom } from "@remix-run/node";
 import type { IOrder } from "~/server/models/OrdersModel";
+import type { IPizza } from "~/server/models/PizzaModel";
+import { useOptionalUser } from "~/utils/misc";
+import Button from "../custom-ui/Button";
 
 type Props = {
   pizza: IPizza;
@@ -15,28 +16,36 @@ const Pizza = ({ pizza }: Props) => {
   const rootData = useRouteLoaderData("root") as SerializeFrom<
     typeof rootLoader
   >;
+  const user = useOptionalUser();
   const ORDERS = rootData?.USER_ORDERS as IOrder[];
+  const fetcher = useFetcher();
   const [qty, setQtyState] = useState<number>();
-  const [cartBtn, setCartBtn] = useState("Add to Cart");
   const setQty = (value: HTMLSelectElement["value"]) => {
     setQtyState(parseInt(value));
   };
   const orderInCart = ORDERS.find((order) => order.pizzaID === pizza._id);
-
-  useEffect(() => {
-    if (orderInCart) {
-      setCartBtn("Update Order");
-    } else {
-      setCartBtn("Add to Cart");
-    }
-  }, [orderInCart]);
+  const addToCart = async () => {
+    fetcher.submit(
+      {
+        pizzaID: pizza._id,
+        quantity: `${qty}`,
+        deliveryNote: "",
+        active: `${false}`,
+        orderStatus: "pending",
+      },
+      {
+        // action: "form/addOrder",
+        method: "post",
+      }
+    );
+  };
   return (
     <div className="mb-3">
       <h3 className="text-3xl">{pizza.title}</h3>
       <p className="text-sm my-2">{pizza.description}</p>
 
       <div className="flex flex-rol items-center w-full justify-between">
-        {!orderInCart && cartBtn === "Add to Cart" ? (
+        {!orderInCart ? (
           <select
             // value={qty}
             name="Quantity"
@@ -62,15 +71,15 @@ const Pizza = ({ pizza }: Props) => {
           </select>
         ) : null}
 
-        {cartBtn === "Add to Cart" ? (
-          <Button>
-            <>{cartBtn}</>
+        <form>
+          <Button
+            name="_action"
+            value={"order"}
+            onClick={() => !orderInCart && addToCart()}
+          >
+            {orderInCart ? <Link to="/cart">Update Cart</Link> : "Add to cart"}
           </Button>
-        ) : (
-          <Button>
-            <>{cartBtn}</>
-          </Button>
-        )}
+        </form>
       </div>
     </div>
   );
