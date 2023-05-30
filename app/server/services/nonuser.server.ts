@@ -40,10 +40,24 @@ export async function DELETE_NON_USER_ORDER(
   orderID: string,
   non_user_uuid: string
 ) {
-  const deleteOrder = await Order.findByIdAndDelete({
+  const deleteOrder = await Order.findByIdAndDelete<IOrder>({
     nonUserID: non_user_uuid,
     _id: orderID,
-  })
+  });
+
+  return deleteOrder;
+}
+export async function CHANGE_QUANTITY_NON_USER_ORDER(
+  orderID: string,
+  quantity: number,
+  non_user_uuid: string
+) {
+  const updatedOrder = await Order.updateOne<IOrder>(
+    { nonUserID: non_user_uuid, _id: orderID },
+    {
+      quantity: quantity,
+    }
+  )
     .then((res) => {
       console.log("🚀 ~ file: nonuser.server.ts:47 ~ res:", res);
       return {};
@@ -52,7 +66,5 @@ export async function DELETE_NON_USER_ORDER(
       console.log("🚀 ~ file: nonuser.server.ts:48 ~ e:", e);
     });
 
-  console.log("Deleting.......➡️➡️");
-
-  return deleteOrder;
+  return updatedOrder;
 }

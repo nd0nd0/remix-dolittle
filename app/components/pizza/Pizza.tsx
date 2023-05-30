@@ -28,7 +28,7 @@ const Pizza = ({ pizza }: Props) => {
     fetcher.submit(
       {
         pizzaID: pizza._id,
-        quantity: `${qty}`,
+        quantity: `${qty || 1}`,
         deliveryNote: "",
         active: `${false}`,
         orderStatus: "pending",
