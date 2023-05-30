@@ -1,19 +1,30 @@
 import type { DataFunctionArgs, TypedResponse } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
+import { Form, Link, useFetcher, useLoaderData } from "@remix-run/react";
 import { useCallback, useEffect, useState } from "react";
 import Layout from "~/components/Layout";
 import Button from "~/components/custom-ui/Button";
 import type { IOrder } from "~/server/models/OrdersModel";
 import type { IPizza } from "~/server/models/PizzaModel";
-import { GET_NON_USER_ORDERS } from "~/server/services/nonuser.server";
+import {
+  DELETE_NON_USER_ORDER,
+  GET_NON_USER_ORDERS,
+} from "~/server/services/nonuser.server";
 import { GET_PIZZAS } from "~/server/services/pizza.service.server";
 import {
   getNonUserUUID,
   requireMiniUserAuth,
 } from "~/server/utils/auth.server";
 import { useOptionalUser } from "~/utils/misc";
+import * as Z from "zod";
+import { preprocessFormData } from "~/server/utils/validation";
 type Props = {};
+export const deleteOrderSchema = Z.object({
+  orderID: Z.string({ required_error: "Item ID is a must have" }),
+  // userID: Z.string().optional(),
+  // nonUserID: Z.string().optional(),
+  _action: Z.string(),
+});
 
 export async function loader({ request }: DataFunctionArgs): Promise<
   TypedResponse<{
@@ -53,8 +64,44 @@ export async function loader({ request }: DataFunctionArgs): Promise<
   );
 }
 
+export async function action({ request }: DataFunctionArgs) {
+  const user_id = await requireMiniUserAuth(request);
+  const non_user_uuid = await getNonUserUUID(request);
+  const formData = await request.clone().formData();
+  const data = deleteOrderSchema.safeParse(
+    preprocessFormData(formData, deleteOrderSchema)
+  );
+  if (!data.success) {
+    return json({ errors: data.error.flatten() }, { status: 400 });
+  }
+
+  const { orderID, _action } = data.data;
+
+  if (_action === "delete-order") {
+    if (!user_id && non_user_uuid) {
+      try {
+        await DELETE_NON_USER_ORDER(orderID, non_user_uuid);
+        return json({ errors: null, revalidate: true }, { status: 200 });
+      } catch (error) {
+        return json({ errors: error, revalidate: false }, { status: 200 });
+      }
+    }
+    // if (user_id) {
+    //   try {
+    //     await DELETE_USER_ORDER(user_id, orderID);
+    //     return json({ errors: null, revalidate: true }, { status: 200 });
+    //   } catch (error) {
+    //     return json({ errors: error, revalidate: false }, { status: 200 });
+    //   }
+    // }
+  }
+
+  return json({ errors: null }, { status: 200 });
+}
+
 const Cart = (props: Props) => {
   const user = useOptionalUser();
+  const fetcher = useFetcher();
   const data = useLoaderData<typeof loader>();
   // const rootData = useRouteLoaderData("root") as SerializeFrom<
   //   typeof rootLoader
@@ -78,12 +125,16 @@ const Cart = (props: Props) => {
   };
 
   const orderDelete = (id: string) => {
-    console.log("clicked");
-    // if (userAuth) {
-    //   dispatch(deleteUserOrder(id));
-    // } else {
-    //   dispatch(deleteOrderNonUser(id));
-    // }
+    fetcher.submit(
+      {
+        _action: "delete-order",
+        orderID: `${id}`,
+      },
+      {
+        // action: "/api/form/deleteOrder", //TODO: API form deleteOrder not found
+        method: "post",
+      }
+    );
   };
 
   const getCount = orders.reduce((acc, curr) => acc + curr.quantity, 0);
@@ -170,8 +221,11 @@ const Cart = (props: Props) => {
                         </th>
                         <th>
                           <Button
-                            type={"delete"}
-                            onClick={(e) => orderDelete(order.id)}
+                            type="submit"
+                            name="_action"
+                            value={"delete-order"}
+                            onClick={(e) => orderDelete(order._id)}
+                            as="delete"
                           >
                             <span>Delete</span>
                           </Button>

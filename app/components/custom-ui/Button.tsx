@@ -5,7 +5,7 @@ import { cva } from "class-variance-authority";
 import { classNameMerge } from "~/utils/classNameMerger";
 const ButtonVariants = cva("rounded-none no-underline", {
   variants: {
-    type: {
+    as: {
       main: "bg-blue-600  rounded-md text-white   py-2 px-2 hover:bg-blue-700",
       cart: "bg-black p-2 text-white  xsm:p-7 md:p-4 xsm:mt-8 md:mt-16 xsm:text-md lg:text-sm ",
       secondary:
@@ -18,7 +18,7 @@ const ButtonVariants = cva("rounded-none no-underline", {
     },
   },
   defaultVariants: {
-    type: "main",
+    as: "main",
   },
 });
 
@@ -28,16 +28,18 @@ interface ButtonProps
   children: ReactNode;
   name?: string;
   value?: string;
+  type?: "button" | "submit" | "reset" | undefined; //TODO: This type should be in ...props of HTMLButtonElement
 }
 
 const Button: FC<ButtonProps> = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ children, className, type, name, ...props }, ref) => {
+  ({ children, className, as, name, type, ...props }, ref) => {
     return (
       <button
         ref={ref}
         {...props}
-        className={classNameMerge(ButtonVariants({ type, className }))}
+        className={classNameMerge(ButtonVariants({ as, className }))}
         name={name}
+        type={type}
       >
         {children}
       </button>

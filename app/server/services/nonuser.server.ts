@@ -35,3 +35,24 @@ export async function ADD_NON_USER_ORDER({
 
   return addOrder;
 }
+
+export async function DELETE_NON_USER_ORDER(
+  orderID: string,
+  non_user_uuid: string
+) {
+  const deleteOrder = await Order.findByIdAndDelete({
+    nonUserID: non_user_uuid,
+    _id: orderID,
+  })
+    .then((res) => {
+      console.log("🚀 ~ file: nonuser.server.ts:47 ~ res:", res);
+      return {};
+    })
+    .catch((e) => {
+      console.log("🚀 ~ file: nonuser.server.ts:48 ~ e:", e);
+    });
+
+  console.log("Deleting.......➡️➡️");
+
+  return deleteOrder;
+}
