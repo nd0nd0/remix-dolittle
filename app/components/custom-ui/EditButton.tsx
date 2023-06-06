@@ -4,7 +4,7 @@ import type { VariantProps } from "class-variance-authority";
 import { cva } from "class-variance-authority";
 import { Link, LinkProps } from "@remix-run/react";
 import { BiPencil } from "react-icons/bi";
-import { classNameMerge } from "~/utils/classNameMerger";
+import { classNameMerge } from "~/utils/tailwind/classNameMerger";
 const ButtonVariants = cva("rounded-none no-underline", {
   variants: {
     type: {

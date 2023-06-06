@@ -2,7 +2,7 @@ import mongoose, { Schema } from "mongoose";
 import type { IUser } from "./UserModel";
 export interface IOrder extends mongoose.Document {
   quantity: number;
-  pizzaID: string;
+  productID: string;
   userID?: IUser["_id"];
   deliveryNote: string | "";
   active?: boolean;
@@ -18,7 +18,7 @@ const OrderSchema: mongoose.Schema = new Schema<IOrder>(
       required: true,
     },
 
-    pizzaID: {
+    productID: {
       type: String,
       required: true,
     },

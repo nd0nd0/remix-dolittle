@@ -2,7 +2,7 @@ import type { VariantProps } from "class-variance-authority";
 import { cva } from "class-variance-authority";
 import type { FC, HTMLAttributes } from "react";
 import { forwardRef } from "react";
-import { classNameMerge } from "~/utils/classNameMerger";
+import { classNameMerge } from "~/utils/tailwind/classNameMerger";
 const ButtonVariants = cva("rounded-none no-underline decoration-none", {
   variants: {
     type: {

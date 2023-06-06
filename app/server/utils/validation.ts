@@ -13,7 +13,7 @@ export const getValidationErrors = (err: any) => {
   return validationErrors;
 };
 export const validateOrderSchema = z.object({
-  pizzaID: z.string({ required_error: "Item ID is a must have" }),
+  productID: z.string({ required_error: "Item ID is a must have" }),
   userID: z.string().optional(),
   nonUserID: z.string().optional(),
   quantity: z.number().min(1).max(5),

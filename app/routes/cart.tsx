@@ -1,85 +1,70 @@
 import type { DataFunctionArgs, TypedResponse } from "@remix-run/node";
+import { redirect } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import {
-  Form,
-  Link,
-  useActionData,
-  useFetcher,
-  useLoaderData,
-} from "@remix-run/react";
+import type { ShouldRevalidateFunction } from "@remix-run/react";
+import { Link, useFetcher, useLoaderData } from "@remix-run/react";
+import type { MongooseError } from "mongoose";
 import { useCallback, useEffect, useState } from "react";
+import * as Z from "zod";
 import Layout from "~/components/Layout";
 import Button from "~/components/custom-ui/Button";
 import type { IOrder } from "~/server/models/OrdersModel";
-import type { IPizza } from "~/server/models/PizzaModel";
+import type { IProduct } from "~/server/models/ProductModel";
+import { GET_PRODUCTS } from "~/server/services/product.service.server";
 import {
-  CHANGE_QUANTITY_NON_USER_ORDER,
-  DELETE_NON_USER_ORDER,
-  GET_NON_USER_ORDERS,
-} from "~/server/services/nonuser.server";
-import { GET_PIZZAS } from "~/server/services/pizza.service.server";
+  CHANGE_QUANTITY_USER_ORDER,
+  DELETE_USER_ORDER,
+  GET_USER_ORDERS,
+} from "~/server/services/user.service.server";
 import {
-  getNonUserUUID,
+  authenticateUser,
   requireMiniUserAuth,
 } from "~/server/utils/auth.server";
-import { useOptionalUser } from "~/utils/misc";
-import * as Z from "zod";
 import { preprocessFormData } from "~/server/utils/validation";
-import type { MongooseError } from "mongoose";
+import { useOptionalUser, useUser } from "~/utils/misc";
 type Props = {};
 export const deleteOrderSchema = Z.object({
   orderID: Z.string({ required_error: "Item ID is a must have" }),
-  // userID: Z.string().optional(),
-  // nonUserID: Z.string().optional(),
 });
 export const changeOrderQtySchema = Z.object({
   orderID: Z.string({ required_error: "Item ID is a must have" }),
   quantity: Z.number().min(1).max(5),
   // userID: Z.string().optional(),
-  // nonUserID: Z.string().optional(),
 });
 
 export async function loader({ request }: DataFunctionArgs): Promise<
   TypedResponse<{
     orders: IOrder[];
-    pizzas: IPizza[];
+    products: IProduct[];
   }>
 > {
   //user
   //TODO: Create a method that returns a user type
-
-  const pizzas = await GET_PIZZAS();
-  const user_id = await requireMiniUserAuth(request);
-  const non_user_uuid = await getNonUserUUID(request);
-
-  const universal_user = {
-    isUser: user_id,
-    isNonUser: non_user_uuid,
-  };
-
-  if (universal_user.isUser) {
-    //get user order by used._id
-    return json({ orders: [], pizzas }, { status: 400 });
+  const user = await authenticateUser(request);
+  const userID = await requireMiniUserAuth(request);
+  if (!user) {
+    redirect("/access?r=login");
   }
 
-  if (universal_user.isNonUser) {
-    const orders = await GET_NON_USER_ORDERS(universal_user.isNonUser);
+  const products = await GET_PRODUCTS();
 
-    return json({ orders: orders, pizzas }, { status: 200 });
+  if (user && userID) {
+    const orders = await GET_USER_ORDERS(userID);
+
+    return json({ orders: orders, products }, { status: 200 });
   }
 
   return json(
     {
       orders: [],
-      pizzas,
+      products,
     },
     { status: 400 }
   );
 }
 
 export async function action({ request }: DataFunctionArgs) {
-  const user_id = await requireMiniUserAuth(request);
-  const non_user_uuid = await getNonUserUUID(request);
+  const userID = await requireMiniUserAuth(request);
   const formData = await request.clone().formData();
   const actionType = formData.get("_action");
 
@@ -93,35 +78,15 @@ export async function action({ request }: DataFunctionArgs) {
 
     const { orderID } = data.data;
 
-    if (!user_id && non_user_uuid) {
+    if (userID) {
       try {
-        await DELETE_NON_USER_ORDER(orderID, non_user_uuid);
-        return json(
-          {
-            errorMessage: null,
-            revalidate: true,
-          },
-          { status: 200, statusText: "success" }
-        );
+        await DELETE_USER_ORDER(orderID, userID);
+        return json({ errors: null, revalidate: true }, { status: 200 });
       } catch (error) {
-        const err = error as MongooseError;
-        return json(
-          {
-            errorMessage: err.message,
-            revalidate: true,
-          },
-          { status: 200, statusText: "success" }
-        );
+        console.log("🚀 ~ file: cart.tsx:88 ~ action ~ error:", error);
+        return json({ errors: error, revalidate: false }, { status: 200 });
       }
     }
-    // if (user_id) {
-    //   try {
-    //     await DELETE_USER_ORDER(user_id, orderID);
-    //     return json({ errors: null, revalidate: true }, { status: 200 });
-    //   } catch (error) {
-    //     return json({ errors: error, revalidate: false }, { status: 200 });
-    //   }
-    // }
   }
   if (actionType === "change-qty") {
     const data = changeOrderQtySchema.safeParse(
@@ -132,50 +97,45 @@ export async function action({ request }: DataFunctionArgs) {
     }
     const { orderID, quantity } = data.data;
 
-    if (!user_id && non_user_uuid) {
+    if (userID) {
       try {
-        await CHANGE_QUANTITY_NON_USER_ORDER(orderID, quantity, non_user_uuid);
-        return json(
-          {
-            errorMessage: null,
-            revalidate: true,
-          },
-          { status: 200, statusText: "success" }
-        );
+        await CHANGE_QUANTITY_USER_ORDER(orderID, quantity, userID);
+        return json({ errors: null, revalidate: true }, { status: 200 });
       } catch (error) {
+        console.log("🚀 ~ file: cart.tsx:106 ~ action ~ error:", error);
         const err = error as MongooseError;
 
         return json(
-          {
-            errorMessage: err.message,
-            revalidate: false,
-          },
-          { status: 400, statusText: "failed" }
+          { errors: err.message, revalidate: false },
+          { status: 400 }
         );
       }
     }
-    // if (user_id) {
-    //   try {
-    //     await DELETE_USER_ORDER(user_id, orderID);
-    //     return json({ errors: null, revalidate: true }, { status: 200 });
-    //   } catch (error) {
-    //     return json({ errors: error, revalidate: false }, { status: 200 });
-    //   }
-    // }
   }
 
   return json({ message: null, errors: null }, { status: 200 });
 }
 
+export async function shouldRevalidate({
+  // @ts-ignore
+  actionResult,
+  // @ts-ignore
+  defaultShouldRevalidate,
+}: ShouldRevalidateFunction) {
+  if (actionResult?.revalidate) {
+    return false;
+  }
+  return defaultShouldRevalidate;
+}
+
 const Cart = (props: Props) => {
-  const user = useOptionalUser();
   const fetcher = useFetcher();
-  const actionData = useActionData<typeof action>();
-  console.log("🚀 ~ file: cart.tsx:174 ~ Cart ~ actionData:", actionData);
   const data = useLoaderData<typeof loader>();
+  const user = useOptionalUser();
   const orders = data.orders as IOrder[];
-  const pizzas = data.pizzas as IPizza[];
+  const products = data.products as IProduct[];
   const [subTotalFigures, setSubTotal] = useState(0);
+
   const changeQty = (qty: HTMLSelectElement["value"], id: string) => {
     const convertStringQty = parseInt(qty);
     fetcher.submit(
@@ -207,16 +167,16 @@ const Cart = (props: Props) => {
   const getCount = orders.reduce((acc, curr) => acc + curr.quantity, 0);
 
   const getCountUser = useCallback(() => {
-    const currentOrder = orders.map((order) => order.pizzaID);
-    const orderedPizzas = pizzas.filter((pizza) =>
-      currentOrder.includes(pizza._id)
+    const currentOrder = orders.map((order) => order.productID);
+    const orderedProducts = products.filter((product) =>
+      currentOrder.includes(product._id)
     );
     const orderArray = orders.map((item, i) =>
-      Object.assign({}, item, orderedPizzas[i])
+      Object.assign({}, item, orderedProducts[i])
     );
-    const totalPrice = orderArray.map((order) => order.prices * order.quantity);
+    const totalPrice = orderArray.map((order) => order.price * order.quantity);
     return totalPrice.reduce((a, c) => a + c, 0);
-  }, [pizzas, orders]);
+  }, [products, orders]);
 
   useEffect(() => {
     setSubTotal(getCountUser);
@@ -232,7 +192,7 @@ const Cart = (props: Props) => {
               <thead>
                 <tr>
                   <th></th>
-                  <th>Pizza</th>
+                  <th>Product</th>
                   <th>Pieces</th>
                   <th>Price</th>
                   <th></th>
@@ -241,12 +201,12 @@ const Cart = (props: Props) => {
               <tbody>
                 <>
                   {orders.map((order) => {
-                    return pizzas
-                      .filter((pizza) => pizza._id === order.pizzaID)
-                      .map((pizza, index) => (
-                        <tr key={pizza._id} className="mb-2">
+                    return products
+                      .filter((product) => product._id === order.productID)
+                      .map((product, index) => (
+                        <tr key={product._id} className="mb-2">
                           <th>{index + 1}</th>
-                          <th>{pizza.title}</th>
+                          <th>{product.name}</th>
                           <th>
                             <select
                               placeholder={`${order.quantity}`}
@@ -283,7 +243,7 @@ const Cart = (props: Props) => {
                           </th>
                           <th>
                             <span style={{ marginRight: "10px" }}>shs</span>
-                            {pizza.prices}
+                            {product.price}
                           </th>
                           <th>
                             <Button

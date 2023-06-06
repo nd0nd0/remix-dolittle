@@ -4,8 +4,8 @@ import { cva } from "class-variance-authority";
 import type { FC, HTMLAttributes, ReactNode } from "react";
 import { forwardRef } from "react";
 import type { SocialsProvider } from "remix-auth-socials";
-import { classNameMerge } from "~/utils/client/classNameMerge";
 import { Field } from "../forms/Field";
+import { classNameMerge } from "~/utils/tailwind/classNameMerger";
 
 interface LoginSocialButtonProps
   extends HTMLAttributes<HTMLButtonElement>,

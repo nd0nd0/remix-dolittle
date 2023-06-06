@@ -2,11 +2,11 @@ import type { IOrder } from "~/server/models/OrdersModel";
 import Order from "~/server/models/OrdersModel";
 type nonUserOrder = {
   quantity: number;
-  pizzaID: string;
+  productID: string;
   deliveryNote?: string | undefined;
   active?: boolean | undefined;
   orderStatus?: string | undefined;
-  non_user_uuid: string | null;
+  nonUserID?: string | null | undefined;
 };
 export async function GET_NON_USER_ORDERS(nonUserUUID: string) {
   const orders = await Order.find<IOrder>({
@@ -17,16 +17,16 @@ export async function GET_NON_USER_ORDERS(nonUserUUID: string) {
 }
 
 export async function ADD_NON_USER_ORDER({
-  pizzaID,
+  productID,
   quantity,
   deliveryNote,
   active,
   orderStatus,
-  non_user_uuid,
+  nonUserID,
 }: nonUserOrder) {
   const addOrder = await Order.create({
-    nonUserID: non_user_uuid,
-    pizzaID,
+    nonUserID,
+    productID,
     quantity,
     orderStatus,
     deliveryNote,

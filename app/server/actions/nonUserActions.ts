@@ -1,24 +1,17 @@
 import { v4 as uuidv4 } from "uuid";
 
-export const generateUUID = async () => {
-  if (typeof window !== "undefined") {
-    console.log("called ✅");
-    window.localStorage.setItem("NX-UUID", uuidv4());
-  }
+export function generateUUID() {
+  return localStorage.setItem("NX-UUID", uuidv4());
+}
 
-  console.log("called 😢");
-  return null;
-};
-
-export const deleteUUID = () => async () => {
+export function deleteUUID() {
   return localStorage.removeItem("NX-UUID");
-};
+}
 
-export const getUUID = () => {
+export function getUUID() {
   const currentUUID = localStorage.getItem("NX-UUID");
-  if (currentUUID) {
-    return currentUUID;
-  } else {
-    generateUUID();
+  if (!currentUUID) {
+    return localStorage.setItem("NX-UUID", uuidv4());
   }
-};
+  return currentUUID;
+}
