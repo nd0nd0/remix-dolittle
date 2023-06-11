@@ -7,6 +7,7 @@ import { createUserSession, safeRedirect } from "../utils/auth.server";
 import { commitSession, getSession } from "../utils/session.server";
 import type { IOrder } from "../models/OrdersModel";
 import Order from "../models/OrdersModel";
+import User from "../models/UserModel";
 type userOrder = {
   quantity: number;
   productID: string;
@@ -175,4 +176,39 @@ export async function DELETE_USER_ORDER(orderID: string, userID: string) {
       console.log("🚀 ~ file: nonuser.server.ts:48 ~ e:", e);
     });
   return deleteOrder;
+}
+
+export async function ADD_SHIPPING_ADDRESS_USER(
+  userID: string,
+  shippingAddress: string
+) {
+  const userShippingAddress = await User.updateOne<IUser>(
+    { _id: parsedID(userID) },
+    { shippingAddress: shippingAddress }
+  )
+    .then((res) => {
+      console.log("🚀 ~ file: user.server.ts:47 ~ res:", res);
+      return {};
+    })
+    .catch((e) => {
+      console.log("🚀 ~ file: user.server.ts:48 ~ e:", e);
+    });
+
+  return userShippingAddress;
+}
+
+export async function CLEAR_SHIPPING_ADDRESS_USER(userID: string) {
+  const userShippingAddress = await User.updateOne<IUser>(
+    { _id: parsedID(userID) },
+    { shippingAddress: "" }
+  )
+    .then((res) => {
+      console.log("🚀 ~ file: user.server.ts:47 ~ res:", res);
+      return {};
+    })
+    .catch((e) => {
+      console.log("🚀 ~ file: user.server.ts:48 ~ e:", e);
+    });
+
+  return userShippingAddress;
 }

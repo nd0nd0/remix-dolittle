@@ -11,7 +11,7 @@ const useGetSubTotal = (orders: IOrder[], products: IProduct[]) => {
     const orderArray = orders.map((item, i) =>
       Object.assign({}, item, orderedProducts[i])
     );
-    const totalPrice = orderArray.map((order) => order.prices * order.quantity);
+    const totalPrice = orderArray.map((order) => order.price * order.quantity);
     return totalPrice.reduce((a, c) => a + c, 0);
   }, [products, orders]);
 };

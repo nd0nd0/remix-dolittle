@@ -163,10 +163,12 @@ const TypeSwitch = ({
 
 export function Field(props: FieldProps) {
   return (
-    <>
+    <div className="relative">
       <TypeSwitch {...props} />
 
-      <div className="text-sm text-red-500">{props.error}</div>
-    </>
+      <div className="text-sm text-red-500 absolute -bottom-5">
+        {props.error}
+      </div>
+    </div>
   );
 }
