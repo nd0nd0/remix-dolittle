@@ -16,19 +16,26 @@ interface FieldProps {
     | "email"
     | "hidden"
     | "location"
+    | "tel"
     | "price";
   value?: string | number | undefined | string[];
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handleEnterKeyPress?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+  onChange?: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => void;
+  handleEnterKeyPress?: (
+    e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => void;
   error?: string | undefined;
   min?: number;
   max?: number;
   checked?: boolean;
   className?: string;
+  leftAddon?: string;
 }
 
 const TypeSwitch = ({
   label,
+  leftAddon,
   type = "text",
   value,
   onChange = () => {},
@@ -45,27 +52,57 @@ const TypeSwitch = ({
     case "text":
     case "password":
     case "email":
+    case "tel":
       return (
         <>
-          <label>{label}</label>
-          <input
-            className={twMerge(
-              className,
-              `border-grey-light block w-full rounded border p-2  text-black ${
-                error && "border-red-500"
-              }`
-            )}
-            type={type}
-            onChange={(e) => {
-              onChange(e);
-            }}
-            onKeyUp={(e) => {
-              handleEnterKeyPress(e);
-            }}
-            name={name}
-            value={value}
-            placeholder={placeholder}
-          />
+          {label && <label>{label}</label>}
+          <div className="flex gap-2">
+            {leftAddon && <p className="bg-black p-2 rounded-sm ">+256</p>}
+            <input
+              className={twMerge(
+                className,
+                `border-grey-light block w-full rounded border p-2  text-black ${
+                  error && "border-red-500"
+                }`
+              )}
+              type={type}
+              onChange={(e) => {
+                onChange(e);
+              }}
+              onKeyUp={(e) => {
+                handleEnterKeyPress(e);
+              }}
+              name={name}
+              value={value}
+              placeholder={placeholder}
+            />
+          </div>
+        </>
+      );
+    case "textarea":
+      return (
+        <>
+          {label && <label>{label}</label>}
+          <div className="flex gap-2">
+            {leftAddon && <p className="bg-black p-2 rounded-sm ">+256</p>}
+            <textarea
+              className={twMerge(
+                className,
+                `border-grey-light block w-full rounded border p-2  text-black ${
+                  error && "border-red-500"
+                }`
+              )}
+              onChange={(e) => {
+                onChange(e);
+              }}
+              onKeyUp={(e) => {
+                handleEnterKeyPress(e);
+              }}
+              name={name}
+              value={value}
+              placeholder={placeholder}
+            />
+          </div>
         </>
       );
     case "checkbox":
@@ -166,7 +203,7 @@ export function Field(props: FieldProps) {
     <div className="relative">
       <TypeSwitch {...props} />
 
-      <div className="text-sm text-red-500 absolute -bottom-5">
+      <div className="text-sm text-red-500 absolute -bottom-12">
         {props.error}
       </div>
     </div>

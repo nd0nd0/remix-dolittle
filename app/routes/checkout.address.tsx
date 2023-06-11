@@ -1,26 +1,15 @@
-import {
-  json,
-  type DataFunctionArgs,
-  type SerializeFrom,
-} from "@remix-run/node";
-import { Form, useActionData, useRouteLoaderData } from "@remix-run/react";
-import React from "react";
-import Button from "~/components/custom-ui/Button";
-import type { loader as checkoutLoader } from "./checkout";
-import { BiTrash } from "react-icons/bi";
-import type { IUser } from "~/server/models/UserModel";
-import { Field } from "~/components/forms/Field";
+import { json, type DataFunctionArgs } from "@remix-run/node";
+import { Form, useActionData, useNavigate } from "@remix-run/react";
 import * as Z from "zod";
-import { preprocessFormData } from "~/server/utils/validation";
-import { useUser } from "~/utils/misc";
-import {
-  authenticateUser,
-  requireMiniUserAuth,
-} from "~/server/utils/auth.server";
+import Button from "~/components/custom-ui/Button";
+import { Field } from "~/components/forms/Field";
 import {
   ADD_SHIPPING_ADDRESS_USER,
   CLEAR_SHIPPING_ADDRESS_USER,
 } from "~/server/services/user.service.server";
+import { requireMiniUserAuth } from "~/server/utils/auth.server";
+import { preprocessFormData } from "~/server/utils/validation";
+import { useUser } from "~/utils/misc";
 
 export const shippingAddressSchema = Z.object({
   shippingAddress: Z.string()
@@ -112,16 +101,8 @@ export async function action({ request }: DataFunctionArgs) {
 }
 const CheckoutAddress = () => {
   const actionData = useActionData();
-  console.log(
-    "🚀 ~ file: checkout.address.tsx:72 ~ CheckoutAddress ~ actionData:",
-    actionData
-  );
+  const navigate = useNavigate();
   const user = useUser();
-  console.log(
-    "🚀 ~ file: checkout.address.tsx:79 ~ CheckoutAddress ~ user:",
-    user
-  );
-  const sumbitAddress = () => {};
   return (
     <div>
       <div>
@@ -143,6 +124,8 @@ const CheckoutAddress = () => {
                 type="submit"
                 name="_action"
                 value="_add-shipping-address"
+                className="disabled:cursor-not-allowed disabled:opacity-50"
+                disabled={user.shippingAddress ? true : false}
               >
                 Add New Address
               </Button>
@@ -161,7 +144,7 @@ const CheckoutAddress = () => {
                   type="submit"
                   value="_clear-shipping-address"
                 >
-                  Delete
+                  Delete?
                 </Button>
               </div>
             </div>
@@ -171,8 +154,9 @@ const CheckoutAddress = () => {
       <Button
         disabled={!user.shippingAddress}
         className="mt-4 disabled:cursor-not-allowed disabled:opacity-50"
+        onClick={() => navigate("/checkout")}
       >
-        Proceed to payment
+        Proceed to checkbox
       </Button>
     </div>
   );

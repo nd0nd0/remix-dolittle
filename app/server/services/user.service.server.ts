@@ -27,7 +27,12 @@ export async function GET_USER_BY_ID(userID: string) {
   const user = await UserSchema.findById<IUser>({
     _id: parsedID(userID),
   }).lean<IUser>();
-  return user;
+  if (user) {
+    const { password: _password, ...userWithoutPassword } = user;
+    return userWithoutPassword;
+  }
+
+  return null;
 }
 export async function GET_USER_BY_EMAIL(email: string) {
   const user = await UserSchema.findOne<IUser>({
@@ -211,4 +216,55 @@ export async function CLEAR_SHIPPING_ADDRESS_USER(userID: string) {
     });
 
   return userShippingAddress;
+}
+
+export async function ADD_PAYMENT_DETAILS_USER(
+  userID: string,
+  paymentMethod: string,
+  phoneNumber: string
+) {
+  const userShippingAddress = await User.updateOne<IUser>(
+    { _id: parsedID(userID) },
+    { paymentMethod: paymentMethod, phoneNumber: phoneNumber }
+  )
+    .then((res) => {
+      console.log("🚀 ~ file: user.server.ts:47 ~ res:", res);
+      return {};
+    })
+    .catch((e) => {
+      console.log("🚀 ~ file: user.server.ts:48 ~ e:", e);
+    });
+
+  return userShippingAddress;
+}
+
+export async function CLEAR_PAYMENT_METHOD_USER(userID: string) {
+  const userPaymentMethod = await User.updateOne<IUser>(
+    { _id: parsedID(userID) },
+    { paymentMethod: "" }
+  )
+    .then((res) => {
+      console.log("🚀 ~ file: user.server.ts:47 ~ res:", res);
+      return {};
+    })
+    .catch((e) => {
+      console.log("🚀 ~ file: user.server.ts:48 ~ e:", e);
+    });
+
+  return userPaymentMethod;
+}
+export async function CLEAR_PHONE_NUMBER_USER(userID: string) {
+  const userPaymentMethod = await User.updateOne<IUser>(
+    { _id: parsedID(userID) },
+    { phoneNumber: "" }
+  )
+    .then((res) => {
+      console.log("🚀 ~ file: user.server.ts:47 ~ res:", res);
+      return {};
+    })
+    .catch((e) => {
+      console.log("🚀 ~ file: user.server.ts:48 ~ e:", e);
+    });
+
+  return userPaymentMethod;
 }

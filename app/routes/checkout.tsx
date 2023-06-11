@@ -1,12 +1,8 @@
 import type { DataFunctionArgs, TypedResponse } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { Outlet, useLoaderData, useNavigate } from "@remix-run/react";
+import { Outlet, useLoaderData, useLocation } from "@remix-run/react";
 import { useState } from "react";
-import {
-  AiOutlineArrowLeft,
-  AiOutlineArrowRight,
-  AiOutlineHome,
-} from "react-icons/ai";
+import { AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai";
 import Layout from "~/components/Layout";
 import Button from "~/components/custom-ui/Button";
 import type { IOrder } from "~/server/models/OrdersModel";
@@ -23,7 +19,7 @@ import { useUser } from "~/utils/misc";
 
 type Props = {};
 
-export async function loader({ request }: DataFunctionArgs): Promise<
+export async function loader({ request, params }: DataFunctionArgs): Promise<
   TypedResponse<{
     orders: IOrder[];
     products: IProduct[];
@@ -58,12 +54,11 @@ export async function loader({ request }: DataFunctionArgs): Promise<
 const Checkout = () => {
   const loaderData = useLoaderData<typeof loader>();
   const user = useUser();
-  const navigate = useNavigate();
   const orders = loaderData.orders as IOrder[];
   const products = loaderData.products as IProduct[];
   const [step, setStep] = useState(loaderData.user ? 3 : 1);
   const subTotal = useGetSubTotal(orders, products);
-
+  const location = useLocation();
   return (
     <Layout>
       <div className=" container mt-5 border-t pt-4">
@@ -127,15 +122,21 @@ const Checkout = () => {
                 </div>
               </div>
             </div>
-            {/* {user ? ( */}
-            <Button
-              className="mt-4"
-              type="submit"
-              // onClick={(e) => makeOrder(e)}
-            >
-              Make Order
-            </Button>
-            {/* ) : null} */}
+            {user.shippingAddress &&
+              user.phoneNumber &&
+              user.paymentMethod &&
+              user.shippingAddress !== "" &&
+              user.phoneNumber !== "" &&
+              user.paymentMethod !== "" &&
+              location.pathname === "/checkout/confirmorder" && (
+                <Button
+                  className="mt-4"
+                  type="submit"
+                  // onClick={(e) => makeOrder(e)}
+                >
+                  Make Order
+                </Button>
+              )}
           </div>
         </div>
       </div>

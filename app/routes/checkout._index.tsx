@@ -7,13 +7,14 @@ type Props = {};
 
 export async function loader({ request }: DataFunctionArgs) {
   const user = await authenticateUser(request);
-  console.log("🚀 ~ file: checkout._index.tsx:10 ~ loader ~ user:", user);
 
-  if (!user?.shippingAddress || user?.shippingAddress?.length === 0) {
-    return redirect("address");
-  } else if (!user?.paymentMethod || user?.paymentMethod?.length === 0) {
-    return redirect("payment");
+  if (user) {
+    if (!user.shippingAddress || user.shippingAddress === "") {
+      return redirect("address");
+    } else if (!user.paymentMethod || user.paymentMethod === "") {
+      return redirect("payment");
+    }
   }
 
-  return null;
+  return redirect("confirmorder");
 }
