@@ -68,10 +68,7 @@ authenticator.use(
     }
 
     const stringifiedUserID = JSON.stringify(user._id);
-    console.log(
-      "🚀 ~ file: auth.server.ts:67 ~ newFormStrategy ~ stringifiedUserID:",
-      stringifiedUserID
-    );
+
     return stringifiedUserID;
   }),
   FormStrategy.name
@@ -164,7 +161,6 @@ export async function createUserSession(
   user_id: string,
   redirectTo: string | undefined
 ) {
-  console.log("🚀 ~ file: auth.server.ts:158 ~ userId:", user_id);
   let redir = redirectTo ? redirectTo : "/";
   const session = await getSession();
   session.set("userId", user_id);

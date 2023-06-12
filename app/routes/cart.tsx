@@ -83,7 +83,6 @@ export async function action({ request }: DataFunctionArgs) {
         await DELETE_USER_ORDER(orderID, userID);
         return json({ errors: null, revalidate: true }, { status: 200 });
       } catch (error) {
-        console.log("🚀 ~ file: cart.tsx:88 ~ action ~ error:", error);
         return json({ errors: error, revalidate: false }, { status: 200 });
       }
     }
@@ -102,7 +101,6 @@ export async function action({ request }: DataFunctionArgs) {
         await CHANGE_QUANTITY_USER_ORDER(orderID, quantity, userID);
         return json({ errors: null, revalidate: true }, { status: 200 });
       } catch (error) {
-        console.log("🚀 ~ file: cart.tsx:106 ~ action ~ error:", error);
         const err = error as MongooseError;
 
         return json(
