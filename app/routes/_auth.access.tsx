@@ -82,14 +82,8 @@ export async function action({ request }: DataFunctionArgs) {
   }
 
   if (_action === "register") {
-    console.log("I am here 😀");
-
     const registrationFormData = userRegistration.safeParse(
       preprocessFormData(formData, userRegistration)
-    );
-    console.log(
-      "🚀 ~ file: _auth.access.tsx:83 ~ action ~ registrationFormData:",
-      registrationFormData
     );
 
     if (!registrationFormData.success) {

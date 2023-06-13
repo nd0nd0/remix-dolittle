@@ -37,8 +37,6 @@ export async function loader({ request }: DataFunctionArgs) {
 }
 
 export async function action({ request }: DataFunctionArgs) {
-  console.log("Iam here 🍀");
-
   const non_user_uuid = new URL(request.url).searchParams.get("nui");
   const formData = await request.clone().formData();
 
