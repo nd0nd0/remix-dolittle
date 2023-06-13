@@ -129,13 +129,20 @@ const Checkout = () => {
               user.phoneNumber !== "" &&
               user.paymentMethod !== "" &&
               location.pathname === "/checkout/confirmorder" && (
-                <Button
-                  className="mt-4"
-                  type="submit"
-                  // onClick={(e) => makeOrder(e)}
-                >
-                  Make Order
-                </Button>
+                <>
+                  <Button
+                    className="mt-4"
+                    type="submit"
+                    // onClick={(e) => makeOrder(e)}
+                  >
+                    Make Order
+                  </Button>
+                  <p className="mt-4 text-sm">
+                    Note: Before you submit your order, please make sure you
+                    have your details aligned well. After your order is
+                    confirmed for delivery it can't be updated again
+                  </p>
+                </>
               )}
           </div>
         </div>
