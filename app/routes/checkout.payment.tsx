@@ -33,10 +33,6 @@ export async function action({ request }: DataFunctionArgs) {
     const paymentDetailsFormData = paymentDetailsSchema.safeParse(
       preprocessFormData(formData, paymentDetailsSchema)
     );
-    console.log(
-      "🚀 ~ file: checkout.payment.tsx:35 ~ action ~ paymentDetailsFormData:",
-      paymentDetailsFormData
-    );
     if (!paymentDetailsFormData.success) {
       return json(
         { errors: paymentDetailsFormData.error.flatten() },
@@ -146,10 +142,6 @@ export async function action({ request }: DataFunctionArgs) {
 const CheckoutPayment = (props: Props) => {
   const user = useUser();
   const actionData = useActionData();
-  console.log(
-    "🚀 ~ file: checkout.payment.tsx:117 ~ CheckoutPayment ~ actionData:",
-    actionData
-  );
   const payMethods = [
     { id: 1, label: "Airtel Money", img: "/public/external-logos/Airtel.png" },
     { id: 2, label: "MTN Money", img: "/public/external-logos/mtnmoney.png" },
