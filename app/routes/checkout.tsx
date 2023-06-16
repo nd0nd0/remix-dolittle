@@ -1,4 +1,8 @@
-import type { DataFunctionArgs, TypedResponse } from "@remix-run/node";
+import type {
+  ActionArgs,
+  DataFunctionArgs,
+  TypedResponse,
+} from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Outlet, useLoaderData, useLocation } from "@remix-run/react";
 import { useState } from "react";
@@ -51,6 +55,54 @@ export async function loader({ request, params }: DataFunctionArgs): Promise<
   return json({ orders: [], products, user: {} }, { status: 400 });
 }
 
+export async function action({ request }: ActionArgs) {
+  const actionData = await request.clone().formData();
+  const buttonAction = actionData.get("_button-action");
+  console.log(
+    "🚀 ~ file: checkout.tsx:59 ~ action ~ buttonAction:",
+    buttonAction
+  );
+  return null;
+}
+
+const StepSwitcher = () => {
+  const location = useLocation();
+
+  return (
+    <div className="flex gap-2  items-center py-2 w-fit border-b ">
+      <Button
+        as="basic"
+        className={`mr-3 ${
+          location.pathname === "/checkout/address" &&
+          "bg-slate-800 rounded-md p-2 active"
+        }`}
+        type="submit"
+        name="_button-action"
+        value="address"
+      >
+        <p>Address</p>
+      </Button>
+      <Button
+        as="basic"
+        className={`mr-3 ${
+          location.pathname === "/checkout/payment" &&
+          "bg-slate-800 rounded-md p-2 active"
+        }`}
+      >
+        <p>Payment</p>
+      </Button>
+      <Button
+        as="basic"
+        className={`mr-3 ${
+          location.pathname === "/checkout/confirmorder" &&
+          "bg-slate-800 rounded-md p-2 active"
+        }`}
+      >
+        <p>Confirm Order</p>
+      </Button>
+    </div>
+  );
+};
 const Checkout = () => {
   const loaderData = useLoaderData<typeof loader>();
   const user = useUser();
@@ -61,24 +113,10 @@ const Checkout = () => {
   const location = useLocation();
   return (
     <Layout>
-      <div className=" container mt-5 border-t pt-4">
-        {step >= 3 ? (
-          <div className="mb-4 flex gap-3">
-            {step > 3 ? (
-              <Button onClick={() => setStep(step - 1)} className="mr-3">
-                <AiOutlineArrowLeft />
-              </Button>
-            ) : null}
-
-            {step === 5 ? null : (
-              <Button onClick={() => setStep(step + 1)}>
-                <AiOutlineArrowRight />
-              </Button>
-            )}
-          </div>
-        ) : null}
+      <div className=" container border-t ">
+        <StepSwitcher />
         <div className="flex gap-2 ">
-          <div className="w-3/5 ">
+          <div className="w-3/5 mt-4">
             <Outlet />
           </div>
           <div className="flex flex-col w-3/12">
@@ -129,13 +167,20 @@ const Checkout = () => {
               user.phoneNumber !== "" &&
               user.paymentMethod !== "" &&
               location.pathname === "/checkout/confirmorder" && (
-                <Button
-                  className="mt-4"
-                  type="submit"
-                  // onClick={(e) => makeOrder(e)}
-                >
-                  Make Order
-                </Button>
+                <>
+                  <Button
+                    className="mt-4"
+                    type="submit"
+                    // onClick={(e) => makeOrder(e)}
+                  >
+                    Make Order
+                  </Button>
+                  <p className="mt-4 text-sm">
+                    Note: Before you submit your order, please make sure you
+                    have your details aligned well. After your order is
+                    confirmed for delivery it can't be updated again
+                  </p>
+                </>
               )}
           </div>
         </div>

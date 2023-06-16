@@ -65,7 +65,7 @@ const CheckoutConfirmOrder = (props: Props) => {
         <Form>
           <Field
             type="textarea"
-            className="min-h-[200px] bg-slate-400 text-black"
+            className="min-h-[120px] p-2 bg-slate-400 text-black"
             name="extraInformation"
             placeholder="Add any extra information to help us deliver to you "
             label="(optional) Extra Order Information"
